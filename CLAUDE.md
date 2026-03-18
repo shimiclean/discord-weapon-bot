@@ -71,7 +71,8 @@ discord-weapon-bot/
 │   ├── config.ts             # 環境変数の読み込み・検証
 │   ├── bot.ts                # Discord Client 生成、インタラクションハンドラ
 │   ├── commands/
-│   │   └── weapon3.ts        # /weapon3 スラッシュコマンド
+│   │   ├── weapon3.ts        # /weapon3 スラッシュコマンド
+│   │   └── format.ts         # ブキのフォーマット・複数ユーザーへの割り当て
 │   ├── database/
 │   │   ├── weapon-downloader.ts  # stat.ink API からブキデータをダウンロード
 │   │   ├── weapon-repository.ts  # ブキデータの読み込み・フィルタ・ランダム選択

@@ -29,14 +29,20 @@ const sampleWeapons = [
   },
 ];
 
-const makeInteraction = (options: Record<string, string | null> = {}) => {
+interface MockOptions {
+  strings?: Record<string, string | null>;
+  channel?: { members: Array<{ user: { bot: boolean }; displayName: string }> } | null;
+}
+
+const makeInteraction = ({ strings = {}, channel = null }: MockOptions = {}) => {
   const reply = jest.fn();
   return {
     reply,
     interaction: {
       reply,
       options: {
-        getString: (name: string) => options[name] ?? null,
+        getString: (name: string) => strings[name] ?? null,
+        getChannel: () => channel,
       },
     } as any,
   };
@@ -62,7 +68,7 @@ describe('weapon3 コマンド', () => {
   });
 
   it('オプションなしで全ブキから選択して返信すること', async () => {
-    const { reply, interaction } = makeInteraction();
+    const { reply, interaction } = makeInteraction({});
 
     await weapon3Command.execute(interaction, repo);
 
@@ -75,7 +81,7 @@ describe('weapon3 コマンド', () => {
   });
 
   it('カテゴリーを指定するとそのカテゴリーのブキから選択すること', async () => {
-    const { reply, interaction } = makeInteraction({ category: 'フデ' });
+    const { reply, interaction } = makeInteraction({ strings: { category: 'フデ' } });
 
     // 10回実行して全てフデのブキであることを確認
     for (let i = 0; i < 10; i++) {
@@ -88,7 +94,7 @@ describe('weapon3 コマンド', () => {
   });
 
   it('サブウェポンを指定するとそのサブを持つブキから選択すること', async () => {
-    const { reply, interaction } = makeInteraction({ sub: 'スプラッシュシールド' });
+    const { reply, interaction } = makeInteraction({ strings: { sub: 'スプラッシュシールド' } });
 
     await weapon3Command.execute(interaction, repo);
 
@@ -98,7 +104,7 @@ describe('weapon3 コマンド', () => {
   });
 
   it('スペシャルを指定するとそのスペシャルを持つブキから選択すること', async () => {
-    const { reply, interaction } = makeInteraction({ special: 'ショクワンダー' });
+    const { reply, interaction } = makeInteraction({ strings: { special: 'ショクワンダー' } });
 
     await weapon3Command.execute(interaction, repo);
 
@@ -108,7 +114,7 @@ describe('weapon3 コマンド', () => {
   });
 
   it('サブとスペシャルの AND 条件で絞り込むこと', async () => {
-    const { reply, interaction } = makeInteraction({ sub: 'キューバンボム', special: 'ウルトラショット' });
+    const { reply, interaction } = makeInteraction({ strings: { sub: 'キューバンボム', special: 'ウルトラショット' } });
 
     await weapon3Command.execute(interaction, repo);
 
@@ -118,7 +124,7 @@ describe('weapon3 コマンド', () => {
   });
 
   it('該当するブキがない場合、メッセージを返すこと', async () => {
-    const { reply, interaction } = makeInteraction({ sub: '存在しないサブ' });
+    const { reply, interaction } = makeInteraction({ strings: { sub: '存在しないサブ' } });
 
     await weapon3Command.execute(interaction, repo);
 
@@ -127,8 +133,62 @@ describe('weapon3 コマンド', () => {
     );
   });
 
+  it('ボイスチャンネルを指定すると参加者全員にブキを割り当てること', async () => {
+    const channel = {
+      members: new Map([
+        ['1', { user: { bot: false }, displayName: 'Charlie' }],
+        ['2', { user: { bot: false }, displayName: 'Alice' }],
+        ['3', { user: { bot: true }, displayName: 'MusicBot' }],
+        ['4', { user: { bot: false }, displayName: 'Bob' }],
+      ]),
+    };
+    const { reply, interaction } = makeInteraction({ channel });
+
+    await weapon3Command.execute(interaction, repo);
+
+    const replied = reply.mock.calls[0][0] as string;
+    const lines = replied.split('\n');
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toMatch(/^Alice: .+ （.+・.+）$/);
+    expect(lines[1]).toMatch(/^Bob: .+ （.+・.+）$/);
+    expect(lines[2]).toMatch(/^Charlie: .+ （.+・.+）$/);
+  });
+
+  it('ボイスチャンネルに Bot しかいない場合、メッセージを返すこと', async () => {
+    const channel = {
+      members: new Map([
+        ['1', { user: { bot: true }, displayName: 'MusicBot' }],
+      ]),
+    };
+    const { reply, interaction } = makeInteraction({ channel });
+
+    await weapon3Command.execute(interaction, repo);
+
+    expect(reply).toHaveBeenCalledWith(
+      expect.stringContaining('ユーザーがいません'),
+    );
+  });
+
+  it('ボイスチャンネルとフィルタを同時に指定できること', async () => {
+    const channel = {
+      members: new Map([
+        ['1', { user: { bot: false }, displayName: 'Alice' }],
+      ]),
+    };
+    const { reply, interaction } = makeInteraction({
+      strings: { category: 'フデ' },
+      channel,
+    });
+
+    await weapon3Command.execute(interaction, repo);
+
+    expect(reply).toHaveBeenCalledWith(
+      'Alice: ホクサイ （キューバンボム・ショクワンダー）',
+    );
+  });
+
   it('リポジトリが未設定の場合、エラーメッセージを返すこと', async () => {
-    const { reply, interaction } = makeInteraction();
+    const { reply, interaction } = makeInteraction({});
 
     await weapon3Command.execute(interaction, undefined);
 

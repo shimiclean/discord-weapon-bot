@@ -1,5 +1,6 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, ChannelType, GuildMember } from 'discord.js';
 import { WeaponRepository } from '../database/weapon-repository.js';
+import { formatWeapon, assignWeapons } from './format.js';
 
 export const weapon3Command = {
   data: new SlashCommandBuilder()
@@ -22,6 +23,13 @@ export const weapon3Command = {
         .setName('special')
         .setDescription('スペシャルウェポンで絞り込み')
         .setRequired(false),
+    )
+    .addChannelOption((option) =>
+      option
+        .setName('channel')
+        .setDescription('ボイスチャンネルの参加者全員にブキを割り当て')
+        .addChannelTypes(ChannelType.GuildVoice)
+        .setRequired(false),
     ),
 
   async execute(
@@ -39,6 +47,25 @@ export const weapon3Command = {
     const filter = (type || sub || special)
       ? { ...(type && { type }), ...(sub && { sub }), ...(special && { special }) }
       : undefined;
+
+    const channel = interaction.options.getChannel('channel');
+
+    if (channel && 'members' in channel) {
+      const members = [...(channel.members as Map<string, GuildMember>).values()];
+      const userNames = members
+        .filter((m) => !m.user.bot)
+        .map((m) => m.displayName);
+
+      if (userNames.length === 0) {
+        await interaction.reply('ボイスチャンネルにユーザーがいません');
+        return;
+      }
+
+      const result = assignWeapons(userNames, repo, filter);
+      await interaction.reply(result);
+      return;
+    }
+
     const weapon = repo.random(filter);
 
     if (!weapon) {
@@ -46,6 +73,6 @@ export const weapon3Command = {
       return;
     }
 
-    await interaction.reply(`${weapon.name} （${weapon.sub}・${weapon.special}）`);
+    await interaction.reply(formatWeapon(weapon));
   },
 };
