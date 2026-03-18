@@ -44,9 +44,21 @@ console.log(`カテゴリー選択肢: ${repo.types.length} 個`);
 console.log(`サブウェポン選択肢: ${repo.subs.length} 個`);
 console.log(`スペシャル選択肢: ${repo.specials.length} 個`);
 
-await rest.put(
-  Routes.applicationCommands(config.clientId),
-  { body: commands },
-);
+const guildIdIndex = process.argv.indexOf('--guild');
+const guildId = guildIdIndex !== -1 ? process.argv[guildIdIndex + 1] : undefined;
+
+if (guildId) {
+  console.log(`ギルドコマンドとして登録します (Guild: ${guildId})`);
+  await rest.put(
+    Routes.applicationGuildCommands(config.clientId, guildId),
+    { body: commands },
+  );
+} else {
+  console.log('グローバルコマンドとして登録します（反映まで最大1時間）');
+  await rest.put(
+    Routes.applicationCommands(config.clientId),
+    { body: commands },
+  );
+}
 
 console.log('コマンドの登録が完了しました');
