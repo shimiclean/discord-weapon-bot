@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "lint": "eslint src/ tests/"
+    "lint": "eslint src/ tests/",
+    "deploy-commands": "node dist/deploy-commands.js"
   },
   "dependencies": {
     "discord.js": "^14.25.1"
