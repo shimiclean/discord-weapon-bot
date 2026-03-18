@@ -16,6 +16,6 @@ export const weapon3Command = {
     }
 
     const weapon = repo.random();
-    await interaction.reply(weapon.name);
+    await interaction.reply(`${weapon.name} （${weapon.sub}、${weapon.special}）`);
   },
 };

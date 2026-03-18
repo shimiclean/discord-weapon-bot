@@ -41,7 +41,7 @@ describe('weapon3 コマンド', () => {
     expect(weapon3Command.data.name).toBe('weapon3');
   });
 
-  it('ブキ一覧からランダムに選ばれた日本語名を返信すること', async () => {
+  it('「{メイン} （{サブ}、{スペシャル}）」の形式で返信すること', async () => {
     const reply = jest.fn();
     const interaction = { reply } as any;
 
@@ -49,8 +49,10 @@ describe('weapon3 コマンド', () => {
 
     expect(reply).toHaveBeenCalledTimes(1);
     const replied = reply.mock.calls[0][0] as string;
-    const validNames = sampleWeapons.map((w) => w.name.ja_JP);
-    expect(validNames).toContain(replied);
+    const validReplies = sampleWeapons.map(
+      (w) => `${w.name.ja_JP} （${w.sub.name.ja_JP}、${w.special.name.ja_JP}）`,
+    );
+    expect(validReplies).toContain(replied);
   });
 
   it('リポジトリが未設定の場合、エラーメッセージを返すこと', async () => {
