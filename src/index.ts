@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import { loadConfig } from './config.js';
 import { createBot } from './bot.js';
 import { WeaponDownloader } from './database/weapon-downloader.js';
+import { WeaponStore } from './database/weapon-store.js';
 
 process.loadEnvFile('.env');
 
@@ -21,7 +22,10 @@ try {
   process.exit(1);
 }
 
-const bot = createBot();
+const weaponStore = WeaponStore.load(WEAPONS3_PATH);
+console.log(`${weaponStore.repository.count} 個のブキを読み込みました`);
+
+const bot = createBot({ weaponStore });
 
 bot.once('ready', (client) => {
   console.log(`${client.user.tag} としてログインしました`);
@@ -30,7 +34,8 @@ bot.once('ready', (client) => {
   setInterval(async () => {
     try {
       await downloader.download();
-      console.log('ブキデータを更新しました');
+      weaponStore.reload();
+      console.log(`ブキデータを更新しました (${weaponStore.repository.count} 個)`);
     } catch (error) {
       console.error('ブキデータの定期更新に失敗しました:', error);
     }
