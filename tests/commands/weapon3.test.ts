@@ -69,7 +69,7 @@ describe('weapon3 コマンド', () => {
     expect(reply).toHaveBeenCalledTimes(1);
     const replied = reply.mock.calls[0][0] as string;
     const validReplies = sampleWeapons.map(
-      (w) => `${w.name.ja_JP} （${w.sub.name.ja_JP}、${w.special.name.ja_JP}）`,
+      (w) => `${w.name.ja_JP} （${w.sub.name.ja_JP}・${w.special.name.ja_JP}）`,
     );
     expect(validReplies).toContain(replied);
   });
@@ -80,7 +80,7 @@ describe('weapon3 コマンド', () => {
     await weapon3Command.execute(interaction, repo);
 
     expect(reply).toHaveBeenCalledWith(
-      '.52ガロン （スプラッシュシールド、メガホンレーザー5.1ch）',
+      '.52ガロン （スプラッシュシールド・メガホンレーザー5.1ch）',
     );
   });
 
@@ -90,7 +90,7 @@ describe('weapon3 コマンド', () => {
     await weapon3Command.execute(interaction, repo);
 
     expect(reply).toHaveBeenCalledWith(
-      'ホクサイ （キューバンボム、ショクワンダー）',
+      'ホクサイ （キューバンボム・ショクワンダー）',
     );
   });
 
@@ -100,7 +100,7 @@ describe('weapon3 コマンド', () => {
     await weapon3Command.execute(interaction, repo);
 
     expect(reply).toHaveBeenCalledWith(
-      'スプラシューター （キューバンボム、ウルトラショット）',
+      'スプラシューター （キューバンボム・ウルトラショット）',
     );
   });
 

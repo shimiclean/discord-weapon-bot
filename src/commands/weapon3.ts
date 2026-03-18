@@ -37,6 +37,6 @@ export const weapon3Command = {
       return;
     }
 
-    await interaction.reply(`${weapon.name} （${weapon.sub}、${weapon.special}）`);
+    await interaction.reply(`${weapon.name} （${weapon.sub}・${weapon.special}）`);
   },
 };
