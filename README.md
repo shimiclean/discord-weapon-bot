@@ -57,7 +57,6 @@ npm run build
 |---------|------|
 | `DISCORD_TOKEN` | Discord Bot トークン |
 | `CLIENT_ID` | Discord アプリケーション ID |
-| `GUILD_ID` | Discord サーバー ID |
 
 ## ライセンス
 

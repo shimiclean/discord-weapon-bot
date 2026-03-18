@@ -72,5 +72,6 @@ discord-weapon-bot/
 
 ## 設定
 
-Bot の動作に必要な設定値（TOKEN, CLIENT_ID 等）は環境変数または設定ファイルで管理する。
+Bot の動作に必要な設定値（DISCORD_TOKEN, CLIENT_ID）は環境変数で管理する。
+Bot は招待されたギルドに自動的に接続するため、ギルド ID の設定は不要。
 機密情報は `.gitignore` に含め、リポジトリにコミットしない。
