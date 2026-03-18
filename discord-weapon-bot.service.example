@@ -5,11 +5,16 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+User=discord-bot
+Group=discord-bot
 WorkingDirectory=/opt/discord-weapon-bot
 Environment=NODE_ENV=production
 
-# docker コンテナ上で依存関係のインストールとビルドを実行
-ExecStartPre=/usr/bin/docker run --rm -v %h/discord-weapon-bot:/app -w /app node:24-slim sh -c "npm ci --ignore-scripts && npm run build"
+# podman コンテナ上で依存関係のインストールとビルドを実行
+ExecStartPre=/usr/bin/podman run --rm -v %h/discord-weapon-bot:/app -w /app node:24-slim sh -c "npm ci --ignore-scripts && npm run build"
+
+# スラッシュコマンドを Discord に登録
+ExecStartPre=/usr/bin/node dist/deploy-commands.js
 
 # ネイティブの node で実行
 ExecStart=/usr/bin/node dist/index.js
