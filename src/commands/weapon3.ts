@@ -10,6 +10,12 @@ export const weapon3Command = {
         .setName('sub')
         .setDescription('サブウェポンで絞り込み')
         .setRequired(false),
+    )
+    .addStringOption((option) =>
+      option
+        .setName('special')
+        .setDescription('スペシャルウェポンで絞り込み')
+        .setRequired(false),
     ),
 
   async execute(
@@ -22,7 +28,9 @@ export const weapon3Command = {
     }
 
     const sub = interaction.options.getString('sub');
-    const weapon = repo.random(sub ? { sub } : undefined);
+    const special = interaction.options.getString('special');
+    const filter = (sub || special) ? { ...(sub && { sub }), ...(special && { special }) } : undefined;
+    const weapon = repo.random(filter);
 
     if (!weapon) {
       await interaction.reply('条件に一致するブキが見つかりません');

@@ -106,12 +106,44 @@ describe('WeaponRepository', () => {
     });
   });
 
+  describe('specials', () => {
+    it('重複なしのスペシャル一覧をソート済みで返すこと', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const specials = repo.specials;
+      expect(specials).toHaveLength(3);
+      const sorted = [...specials].sort((a, b) => a.localeCompare(b, 'ja'));
+      expect(specials).toEqual(sorted);
+    });
+  });
+
   describe('random with filter', () => {
     it('サブウェポンでフィルタできること', () => {
       fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
       const repo = WeaponRepository.load(filePath);
       const weapon = repo.random({ sub: 'スプラッシュシールド' });
       expect(weapon?.name).toBe('.52ガロン');
+    });
+
+    it('スペシャルでフィルタできること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ special: 'ショクワンダー' });
+      expect(weapon?.name).toBe('ホクサイ');
+    });
+
+    it('サブとスペシャルの AND 条件でフィルタできること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ sub: 'キューバンボム', special: 'ウルトラショット' });
+      expect(weapon?.name).toBe('スプラシューター');
+    });
+
+    it('AND 条件で一致するブキがない場合、null を返すこと', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ sub: 'スプラッシュシールド', special: 'ウルトラショット' });
+      expect(weapon).toBeNull();
     });
 
     it('フィルタ条件に一致するブキがない場合、null を返すこと', () => {

@@ -52,11 +52,20 @@ export class WeaponRepository {
     return unique.sort((a, b) => a.localeCompare(b, 'ja'));
   }
 
-  random(filter?: { sub?: string }): Weapon | null {
+  get specials(): string[] {
+    const unique = [...new Set(this.weapons.map((w) => w.special))];
+    return unique.sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+
+  random(filter?: { sub?: string; special?: string }): Weapon | null {
     let candidates = this.weapons;
 
     if (filter?.sub) {
       candidates = candidates.filter((w) => w.sub === filter.sub);
+    }
+
+    if (filter?.special) {
+      candidates = candidates.filter((w) => w.special === filter.special);
     }
 
     if (candidates.length === 0) {

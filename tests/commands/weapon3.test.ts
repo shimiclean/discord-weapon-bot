@@ -84,6 +84,26 @@ describe('weapon3 コマンド', () => {
     );
   });
 
+  it('スペシャルを指定するとそのスペシャルを持つブキから選択すること', async () => {
+    const { reply, interaction } = makeInteraction({ special: 'ショクワンダー' });
+
+    await weapon3Command.execute(interaction, repo);
+
+    expect(reply).toHaveBeenCalledWith(
+      'ホクサイ （キューバンボム、ショクワンダー）',
+    );
+  });
+
+  it('サブとスペシャルの AND 条件で絞り込むこと', async () => {
+    const { reply, interaction } = makeInteraction({ sub: 'キューバンボム', special: 'ウルトラショット' });
+
+    await weapon3Command.execute(interaction, repo);
+
+    expect(reply).toHaveBeenCalledWith(
+      'スプラシューター （キューバンボム、ウルトラショット）',
+    );
+  });
+
   it('該当するブキがない場合、メッセージを返すこと', async () => {
     const { reply, interaction } = makeInteraction({ sub: '存在しないサブ' });
 

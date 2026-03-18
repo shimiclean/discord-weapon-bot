@@ -12,19 +12,24 @@ const rest = new REST().setToken(config.token);
 const WEAPONS3_PATH = path.resolve('database', 'weapons3.json');
 const repo = WeaponRepository.load(WEAPONS3_PATH);
 
-// サブウェポンの選択肢をデータから構築
-const subOption = weapon3Command.data.options.find(
-  (opt): opt is SlashCommandStringOption => opt instanceof SlashCommandStringOption && opt.name === 'sub',
-);
-if (subOption) {
-  const choices = repo.subs.map((sub) => ({ name: sub, value: sub }));
-  subOption.addChoices(...choices);
-}
+// 選択肢をデータから構築
+const addChoices = (name: string, values: string[]) => {
+  const option = weapon3Command.data.options.find(
+    (opt): opt is SlashCommandStringOption => opt instanceof SlashCommandStringOption && opt.name === name,
+  );
+  if (option) {
+    option.addChoices(...values.map((v) => ({ name: v, value: v })));
+  }
+};
+
+addChoices('sub', repo.subs);
+addChoices('special', repo.specials);
 
 const commands = [weapon3Command.data.toJSON()];
 
 console.log(`${commands.length} 個のコマンドを登録します...`);
 console.log(`サブウェポン選択肢: ${repo.subs.length} 個`);
+console.log(`スペシャル選択肢: ${repo.specials.length} 個`);
 
 await rest.put(
   Routes.applicationCommands(config.clientId),
