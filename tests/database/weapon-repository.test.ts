@@ -86,6 +86,18 @@ describe('WeaponRepository', () => {
     });
   });
 
+  describe('types', () => {
+    it('重複なしのカテゴリー一覧をソート済みで返すこと', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const types = repo.types;
+      expect(types).toHaveLength(2);
+      expect(types).toEqual(expect.arrayContaining(['シューター', 'フデ']));
+      const sorted = [...types].sort((a, b) => a.localeCompare(b, 'ja'));
+      expect(types).toEqual(sorted);
+    });
+  });
+
   describe('subs', () => {
     it('重複なしのサブウェポン一覧を返すこと', () => {
       fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
@@ -118,6 +130,20 @@ describe('WeaponRepository', () => {
   });
 
   describe('random with filter', () => {
+    it('カテゴリーでフィルタできること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ type: 'フデ' });
+      expect(weapon?.name).toBe('ホクサイ');
+    });
+
+    it('カテゴリーとサブの AND 条件でフィルタできること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ type: 'シューター', sub: 'キューバンボム' });
+      expect(weapon?.name).toBe('スプラシューター');
+    });
+
     it('サブウェポンでフィルタできること', () => {
       fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
       const repo = WeaponRepository.load(filePath);

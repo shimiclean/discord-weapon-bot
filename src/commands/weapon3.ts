@@ -7,6 +7,12 @@ export const weapon3Command = {
     .setDescription('Splatoon 3 のブキをランダムに選択します')
     .addStringOption((option) =>
       option
+        .setName('category')
+        .setDescription('カテゴリーで絞り込み')
+        .setRequired(false),
+    )
+    .addStringOption((option) =>
+      option
         .setName('sub')
         .setDescription('サブウェポンで絞り込み')
         .setRequired(false),
@@ -27,9 +33,12 @@ export const weapon3Command = {
       return;
     }
 
+    const type = interaction.options.getString('category');
     const sub = interaction.options.getString('sub');
     const special = interaction.options.getString('special');
-    const filter = (sub || special) ? { ...(sub && { sub }), ...(special && { special }) } : undefined;
+    const filter = (type || sub || special)
+      ? { ...(type && { type }), ...(sub && { sub }), ...(special && { special }) }
+      : undefined;
     const weapon = repo.random(filter);
 
     if (!weapon) {

@@ -22,12 +22,14 @@ const addChoices = (name: string, values: string[]) => {
   }
 };
 
+addChoices('category', repo.types);
 addChoices('sub', repo.subs);
 addChoices('special', repo.specials);
 
 const commands = [weapon3Command.data.toJSON()];
 
 console.log(`${commands.length} 個のコマンドを登録します...`);
+console.log(`カテゴリー選択肢: ${repo.types.length} 個`);
 console.log(`サブウェポン選択肢: ${repo.subs.length} 個`);
 console.log(`スペシャル選択肢: ${repo.specials.length} 個`);
 

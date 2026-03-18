@@ -47,6 +47,11 @@ export class WeaponRepository {
     return this.weapons.length;
   }
 
+  get types(): string[] {
+    const unique = [...new Set(this.weapons.map((w) => w.type))];
+    return unique.sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+
   get subs(): string[] {
     const unique = [...new Set(this.weapons.map((w) => w.sub))];
     return unique.sort((a, b) => a.localeCompare(b, 'ja'));
@@ -57,8 +62,12 @@ export class WeaponRepository {
     return unique.sort((a, b) => a.localeCompare(b, 'ja'));
   }
 
-  random(filter?: { sub?: string; special?: string }): Weapon | null {
+  random(filter?: { type?: string; sub?: string; special?: string }): Weapon | null {
     let candidates = this.weapons;
+
+    if (filter?.type) {
+      candidates = candidates.filter((w) => w.type === filter.type);
+    }
 
     if (filter?.sub) {
       candidates = candidates.filter((w) => w.sub === filter.sub);

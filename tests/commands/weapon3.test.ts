@@ -74,6 +74,19 @@ describe('weapon3 コマンド', () => {
     expect(validReplies).toContain(replied);
   });
 
+  it('カテゴリーを指定するとそのカテゴリーのブキから選択すること', async () => {
+    const { reply, interaction } = makeInteraction({ category: 'フデ' });
+
+    // 10回実行して全てフデのブキであることを確認
+    for (let i = 0; i < 10; i++) {
+      reply.mockClear();
+      await weapon3Command.execute(interaction, repo);
+      expect(reply).toHaveBeenCalledWith(
+        'ホクサイ （キューバンボム・ショクワンダー）',
+      );
+    }
+  });
+
   it('サブウェポンを指定するとそのサブを持つブキから選択すること', async () => {
     const { reply, interaction } = makeInteraction({ sub: 'スプラッシュシールド' });
 
