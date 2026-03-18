@@ -1,0 +1,21 @@
+[Unit]
+Description=Discord Weapon Bot (Splatoon)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/discord-weapon-bot
+Environment=NODE_ENV=production
+
+# docker コンテナ上で依存関係のインストールとビルドを実行
+ExecStartPre=/usr/bin/docker run --rm -v %h/discord-weapon-bot:/app -w /app node:24-slim sh -c "npm ci --ignore-scripts && npm run build"
+
+# ネイティブの node で実行
+ExecStart=/usr/bin/node dist/index.js
+
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

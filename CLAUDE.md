@@ -84,6 +84,7 @@ discord-weapon-bot/
 ├── .env                      # 環境変数（gitignore）
 ├── .env.example              # 環境変数のサンプル
 ├── Containerfile             # Podman/Docker コンテナ定義
+├── discord-weapon-bot.service.example  # systemd ユニットファイルのサンプル
 ├── CLAUDE.md                 # このファイル
 └── README.md                 # プロジェクト説明
 ```

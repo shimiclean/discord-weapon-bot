@@ -88,6 +88,11 @@ npm run deploy-commands
 | `DISCORD_TOKEN` | Discord Bot トークン |
 | `CLIENT_ID` | Discord アプリケーション ID |
 
+## デプロイ
+
+`discord-weapon-bot.service.example` を参考に systemd ユニットファイルを作成できます。
+ビルドは docker コンテナ上で行い、実行はネイティブの node を使用します。
+
 ## ブキデータ
 
 ブキデータは [stat.ink](https://stat.ink/) API から自動的にダウンロードされます。
