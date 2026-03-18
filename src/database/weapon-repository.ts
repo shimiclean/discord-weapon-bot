@@ -47,8 +47,23 @@ export class WeaponRepository {
     return this.weapons.length;
   }
 
-  random(): Weapon {
-    const index = crypto.randomInt(this.weapons.length);
-    return this.weapons[index];
+  get subs(): string[] {
+    const unique = [...new Set(this.weapons.map((w) => w.sub))];
+    return unique.sort((a, b) => a.localeCompare(b, 'ja'));
+  }
+
+  random(filter?: { sub?: string }): Weapon | null {
+    let candidates = this.weapons;
+
+    if (filter?.sub) {
+      candidates = candidates.filter((w) => w.sub === filter.sub);
+    }
+
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    const index = crypto.randomInt(candidates.length);
+    return candidates[index];
   }
 }

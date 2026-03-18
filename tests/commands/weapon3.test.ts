@@ -14,6 +14,13 @@ const sampleWeapons = [
     special: { key: 'ultrashot', name: { ja_JP: 'ウルトラショット' } },
   },
   {
+    key: '52gal',
+    type: { key: 'shooter', name: { ja_JP: 'シューター' } },
+    name: { ja_JP: '.52ガロン' },
+    sub: { key: 'splashshield', name: { ja_JP: 'スプラッシュシールド' } },
+    special: { key: 'megaphone51', name: { ja_JP: 'メガホンレーザー5.1ch' } },
+  },
+  {
     key: 'hokusai',
     type: { key: 'brush', name: { ja_JP: 'フデ' } },
     name: { ja_JP: 'ホクサイ' },
@@ -21,6 +28,19 @@ const sampleWeapons = [
     special: { key: 'shokuwander', name: { ja_JP: 'ショクワンダー' } },
   },
 ];
+
+const makeInteraction = (options: Record<string, string | null> = {}) => {
+  const reply = jest.fn();
+  return {
+    reply,
+    interaction: {
+      reply,
+      options: {
+        getString: (name: string) => options[name] ?? null,
+      },
+    } as any,
+  };
+};
 
 describe('weapon3 コマンド', () => {
   let tmpDir: string;
@@ -41,9 +61,8 @@ describe('weapon3 コマンド', () => {
     expect(weapon3Command.data.name).toBe('weapon3');
   });
 
-  it('「{メイン} （{サブ}、{スペシャル}）」の形式で返信すること', async () => {
-    const reply = jest.fn();
-    const interaction = { reply } as any;
+  it('オプションなしで全ブキから選択して返信すること', async () => {
+    const { reply, interaction } = makeInteraction();
 
     await weapon3Command.execute(interaction, repo);
 
@@ -55,9 +74,28 @@ describe('weapon3 コマンド', () => {
     expect(validReplies).toContain(replied);
   });
 
+  it('サブウェポンを指定するとそのサブを持つブキから選択すること', async () => {
+    const { reply, interaction } = makeInteraction({ sub: 'スプラッシュシールド' });
+
+    await weapon3Command.execute(interaction, repo);
+
+    expect(reply).toHaveBeenCalledWith(
+      '.52ガロン （スプラッシュシールド、メガホンレーザー5.1ch）',
+    );
+  });
+
+  it('該当するブキがない場合、メッセージを返すこと', async () => {
+    const { reply, interaction } = makeInteraction({ sub: '存在しないサブ' });
+
+    await weapon3Command.execute(interaction, repo);
+
+    expect(reply).toHaveBeenCalledWith(
+      expect.stringContaining('見つかりません'),
+    );
+  });
+
   it('リポジトリが未設定の場合、エラーメッセージを返すこと', async () => {
-    const reply = jest.fn();
-    const interaction = { reply } as any;
+    const { reply, interaction } = makeInteraction();
 
     await weapon3Command.execute(interaction, undefined);
 

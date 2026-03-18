@@ -85,4 +85,47 @@ describe('WeaponRepository', () => {
       expect(() => WeaponRepository.load(filePath)).toThrow();
     });
   });
+
+  describe('subs', () => {
+    it('重複なしのサブウェポン一覧を返すこと', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const subs = repo.subs;
+      expect(subs).toEqual(
+        expect.arrayContaining(['スプラッシュシールド', 'キューバンボム']),
+      );
+      expect(subs).toHaveLength(2);
+    });
+
+    it('ソートされていること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const subs = repo.subs;
+      const sorted = [...subs].sort((a, b) => a.localeCompare(b, 'ja'));
+      expect(subs).toEqual(sorted);
+    });
+  });
+
+  describe('random with filter', () => {
+    it('サブウェポンでフィルタできること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ sub: 'スプラッシュシールド' });
+      expect(weapon?.name).toBe('.52ガロン');
+    });
+
+    it('フィルタ条件に一致するブキがない場合、null を返すこと', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random({ sub: '存在しないサブ' });
+      expect(weapon).toBeNull();
+    });
+
+    it('フィルタなしの場合、全ブキから選択すること', () => {
+      fs.writeFileSync(filePath, JSON.stringify(sampleWeapons));
+      const repo = WeaponRepository.load(filePath);
+      const weapon = repo.random();
+      expect(weapon).not.toBeNull();
+    });
+  });
 });
