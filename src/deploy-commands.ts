@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import { REST, Routes, SlashCommandStringOption } from 'discord.js';
 import { loadConfig } from './config.js';
 import { weapon3Command } from './commands/weapon3.js';
+import { WeaponDownloader } from './database/weapon-downloader.js';
 import { WeaponRepository } from './database/weapon-repository.js';
 
 process.loadEnvFile('.env');
@@ -9,7 +10,17 @@ process.loadEnvFile('.env');
 const config = loadConfig();
 const rest = new REST().setToken(config.token);
 
+const WEAPON_API_URL = 'https://stat.ink/api/v3/weapon?full=1';
 const WEAPONS3_PATH = path.resolve('database', 'weapons3.json');
+
+const downloader = new WeaponDownloader(WEAPONS3_PATH, WEAPON_API_URL);
+try {
+  await downloader.ensureAvailable();
+} catch (error) {
+  console.error('ブキデータの取得に失敗しました:', error);
+  process.exit(1);
+}
+
 const repo = WeaponRepository.load(WEAPONS3_PATH);
 
 // 選択肢をデータから構築
