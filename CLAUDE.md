@@ -10,7 +10,7 @@ discord-weapon-bot は、Splatoon シリーズのブキをランダムに選択�
 - **言語**: TypeScript (ESM)
 - **ランタイム**: Node.js 24 (node:24-slim コンテナ上で開発)
 - **Discord ライブラリ**: discord.js v14
-- **テストフレームワーク**: Jest
+- **テストフレームワーク**: Jest (ts-jest ESM プリセット)
 - **パッケージマネージャー**: npm
 - **コンテナ**: Podman (node:24-slim)
 
@@ -55,6 +55,9 @@ npm test
 # ビルド
 npm run build
 
+# スラッシュコマンドを Discord に登録
+npm run deploy-commands
+
 # リント
 npm run lint
 ```
@@ -63,15 +66,37 @@ npm run lint
 
 ```
 discord-weapon-bot/
-├── src/           # ソースコード
-├── tests/         # テストファイル
-├── dist/          # ビルド出力 (gitignore)
-├── CLAUDE.md      # このファイル
-└── README.md      # プロジェクト説明
+├── src/
+│   ├── index.ts              # エントリーポイント（.env 読み込み、Bot 起動）
+│   ├── config.ts             # 環境変数の読み込み・検証
+│   ├── bot.ts                # Discord Client 生成、インタラクションハンドラ
+│   ├── commands/
+│   │   └── weapon3.ts        # /weapon3 スラッシュコマンド
+│   ├── database/
+│   │   ├── weapon-downloader.ts  # stat.ink API からブキデータをダウンロード
+│   │   ├── weapon-repository.ts  # ブキデータの読み込み・フィルタ・ランダム選択
+│   │   └── weapon-store.ts       # リポジトリの管理・自動リロード
+│   └── deploy-commands.ts    # スラッシュコマンドの Discord 登録スクリプト
+├── tests/                    # テストファイル（src/ と同じ構造）
+├── database/                 # ブキデータ JSON（gitignore、実行時にダウンロード）
+├── dist/                     # ビルド出力（gitignore）
+├── .env                      # 環境変数（gitignore）
+├── .env.example              # 環境変数のサンプル
+├── Containerfile             # Podman/Docker コンテナ定義
+├── CLAUDE.md                 # このファイル
+└── README.md                 # プロジェクト説明
 ```
 
 ## 設定
 
-Bot の動作に必要な設定値（DISCORD_TOKEN, CLIENT_ID）は環境変数で管理する。
+Bot の動作に必要な設定値（DISCORD_TOKEN, CLIENT_ID）は `.env` ファイルで管理する。
+`.env.example` をコピーして `.env` を作成し、値を設定する。
 Bot は招待されたギルドに自動的に接続するため、ギルド ID の設定は不要。
 機密情報は `.gitignore` に含め、リポジトリにコミットしない。
+
+## ブキデータ
+
+- ソース: `https://stat.ink/api/v3/weapon?full=1`
+- 起動時にファイルがなければダウンロード（失敗時は5回リトライ後 exit 1）
+- 24時間ごとに定期更新、JSON 破損時は既存データを維持
+- `database/weapons3.json` に保存（gitignore）
