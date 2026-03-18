@@ -1,0 +1,25 @@
+{
+  "name": "@jp3cki/discord-weapon-bot",
+  "version": "2.0.0",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">= 24"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "lint": "eslint src/ tests/"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
