@@ -8,7 +8,7 @@ export interface BotOptions {
 
 export function createBot(options: BotOptions = {}): Client {
   const client = new Client({
-    intents: [GatewayIntentBits.Guilds],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
   });
 
   client.on(Events.InteractionCreate, async (interaction) => {

@@ -13,4 +13,10 @@ describe('createBot', () => {
     expect(bot.options.intents.has(GatewayIntentBits.Guilds)).toBe(true);
     bot.destroy();
   });
+
+  it('GuildVoiceStates インテントが設定されていること', () => {
+    const bot = createBot();
+    expect(bot.options.intents.has(GatewayIntentBits.GuildVoiceStates)).toBe(true);
+    bot.destroy();
+  });
 });
